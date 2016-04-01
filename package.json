@@ -1,0 +1,16 @@
+{
+    "name": "FillWorkTime",
+    "version": "0.0.1",
+    "private": true,
+    "scripts": {
+        "start": "node node_modules/react-native/local-cli/cli.js start"
+    },
+    "dependencies": {
+        "base-64": "^0.1.0",
+        "cheerio": "*",
+        "events": "^1.1.0",
+        "react": "^0.14.8",
+        "react-native": "^0.22.2",
+        "react-native-button": "^1.4.2"
+    }
+}
