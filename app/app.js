@@ -8,7 +8,8 @@ import Button from 'react-native-button';
 import cheerio from 'cheerio';
 import _ from 'lodash';
 import dismissKeyboard from 'dismissKeyboard';
-import Ntlm from './ntlm.js';
+import Ntlm from './utils/ntlm.js';
+import DeviceStorage from './utils/storage.js';
 
 const {
     Component,
@@ -16,8 +17,7 @@ const {
     Text,
     TextInput,
     View,
-    Alert,
-    AsyncStorage
+    Alert
 } = React;
 
 const url = 'http://iems.shinetechchina.com/MyiEMS/taskes/mytaskes.aspx';
@@ -34,7 +34,13 @@ class App extends Component {
         };
         this.fillTime = this.fillTime.bind(this);
     }
-
+    
+    componentDidMount() {
+        DeviceStorage.get("credential").then((credential)=>{
+            console.log(credential);
+        })
+    }
+        
     async firstHandShake(userName, passWord) {
         Ntlm.setCredentials(domain, userName, passWord);
         let msg1 = Ntlm.createMessage1(hostname);
@@ -67,7 +73,7 @@ class App extends Component {
 
     async reportTime(secondResponse) {
         if (secondResponse.status == 200) {
-            let html = secondResponse._bodyText;
+            let html = await secondResponse.text();
             this.showMessage('认证通过，准备填入工作量....')
             let $ = cheerio.load(html);
             let inputs = $('form input');
@@ -103,10 +109,10 @@ class App extends Component {
         try {
             dismissKeyboard();
             this.setState({ textlist: [] });
-            let userName = this.state.userName;
-            let passWord = this.state.passWord;
-            // let userName = 'zoul';
-            // let passWord = 'Shinetech2012';
+            // let userName = this.state.userName;
+            // let passWord = this.state.passWord;
+            let userName = 'zoul';
+            let passWord = 'Shinetech2012';
             if (userName.length == 0 || passWord.length == 0) {
                 this.showMessage('用户名,密码不能为空')
                 return;
@@ -118,7 +124,9 @@ class App extends Component {
             this.showMessage('已收到服务器响应....')
             let finalResponse = await this.reportTime(secondResponse);
             this.showMessage('填入结束....')
-            var $ = cheerio.load(finalResponse._bodyText);
+            DeviceStorage.save("credential",{userName:this.state.userName,passWord:this.state.passWord});
+            let html = await finalResponse.text();
+            var $ = cheerio.load(html);
             var msg = $('#ctl00_ContentPlaceHolderMain_rtPOs_ctl00_lerrorMessage').text();
             Alert.alert(
                 '',
