@@ -38,7 +38,8 @@ class App extends Component {
     componentDidMount() {
         DeviceStorage.get("credential").then((credential)=>{
             console.log(credential);
-        })
+            this.setState({ userName: credential.userName,passWord:credential.passWord });
+        });
     }
         
     async firstHandShake(userName, passWord) {
@@ -109,10 +110,8 @@ class App extends Component {
         try {
             dismissKeyboard();
             this.setState({ textlist: [] });
-            // let userName = this.state.userName;
-            // let passWord = this.state.passWord;
-            let userName = 'zoul';
-            let passWord = 'Shinetech2012';
+            let userName = this.state.userName;
+            let passWord = this.state.passWord;
             if (userName.length == 0 || passWord.length == 0) {
                 this.showMessage('用户名,密码不能为空')
                 return;
@@ -124,8 +123,8 @@ class App extends Component {
             this.showMessage('已收到服务器响应....')
             let finalResponse = await this.reportTime(secondResponse);
             this.showMessage('填入结束....')
-            DeviceStorage.save("credential",{userName:this.state.userName,passWord:this.state.passWord});
             let html = await finalResponse.text();
+            DeviceStorage.save("credential",{userName:this.state.userName,passWord:this.state.passWord});
             var $ = cheerio.load(html);
             var msg = $('#ctl00_ContentPlaceHolderMain_rtPOs_ctl00_lerrorMessage').text();
             Alert.alert(
